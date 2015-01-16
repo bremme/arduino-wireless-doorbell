@@ -2,6 +2,7 @@
   WirelessDoorBell - Library for sending and receiving codes to "Select Plus Wireless doorbell"
   Created by Bram Harmsen, Januarie 15, 2015
   Released into the public domain.
+  Licence: GNU GENERAL PUBLIC LICENSE V2.0
 */
 
 /* 
@@ -76,7 +77,6 @@ class DoorBellReceiver {
     * Initializes the decoder.
     *
     * @param interrupt  The interrupt as is used by Arduino's attachInterrupt function. See attachInterrupt for details.
-              If < 0, you must call interruptHandler() yourself.
     * @param minRepeats The number of times the same code must be received in a row before the callback is called
     * @param callback Pointer to a callback function, with signature void (*func)(unsigned int). First parameter is the decoded data
     */
@@ -89,9 +89,32 @@ class DoorBellReceiver {
     * Disable decoding. You can re-enable decoding by calling enable();
     */
     static void disable(); 
+    /**
+    * Print current configuration over serial ( call Serial.begin(9600) before using )
+    */
     static void printConfig();
+    /**
+    * Update the timing margings
+    *
+    * A good pulse is shortPulse +- pulseMargin, longPulse +- pulseMargin and syncPulse +- syncPulseMarging
+    * 
+    * @param pulseMargin      Margin for short and long pulse, default = 100 us
+    * @param syncPulseMargin  Margin for sync pulse default = 300 us
+    */
     static void setMargin( unsigned int pulseMarging, unsigned int syncPulseMargin );
+    /**
+    * Update period
+    *
+    * The period is the time in us of one full period, e.g. short pulse, long pulse.
+    * 
+    * @param period           Period duration, default = 1500
+    */
     static void setPeriod( unsigned int period );
+    /**
+    * Update the minimum number of code repeats
+    *
+    * @param minRepeats       Minimum number of repeated codes before calling callback
+    */
     static void setMinRepeats( byte minRepeats );
     /**
     * Handle the arduino interrupt
@@ -109,7 +132,7 @@ class DoorBellReceiver {
     static unsigned int             _longPulse;       // Long pulse length
     static unsigned int             _syncPulse;       // Sync pulse length
     static unsigned int             _syncPulseMargin; // Sync pulse marging
-    static unsigned int             _pulseMargin;    // Pulse marging
+    static unsigned int             _pulseMargin;     // Pulse marging
 
 };
 

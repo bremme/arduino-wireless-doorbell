@@ -1,4 +1,9 @@
-
+/*
+  WirelessDoorBell - Library for sending and receiving codes to "Select Plus Wireless doorbell"
+  Created by Bram Harmsen, Januarie 15, 2015
+  Released into the public domain.
+  Licence: GNU GENERAL PUBLIC LICENSE V2.0
+*/
 
 #include "DoorBellReceiver.h"
 
@@ -17,9 +22,6 @@ unsigned int              DoorBellReceiver::_pulseMargin     = 100;
 
 
 // Constructor /////////////////////////////////////////////////////////////////
-
-
-// Public //////////////////////////////////////////////////////////////////////
 DoorBellReceiver::DoorBellReceiver( int8_t interrupt, byte minRepeats, DoorBellReceiverCallback callback ) {
   if (interrupt == 0 || interrupt == 1) {
     _interrupt  = interrupt;
@@ -39,6 +41,7 @@ DoorBellReceiver::DoorBellReceiver( int8_t interrupt, byte minRepeats, DoorBellR
   }
 }
 
+// Public //////////////////////////////////////////////////////////////////////
 void DoorBellReceiver::enable() {
   _state    = -2;
   _enabled  = true;
@@ -192,8 +195,6 @@ void DoorBellReceiver::interruptHandler() {
       return;
     }  
   }
-
-  _state++;
+  _state++; // increase state
   return;
-
 }

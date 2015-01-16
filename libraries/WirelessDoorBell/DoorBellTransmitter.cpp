@@ -8,11 +8,12 @@
 #include "DoorBellTransmitter.h"
 
 // Constructor
-DoorBellTransmitter::DoorBellTransmitter( unsigned char txPin, char *charCode, unsigned int period, unsigned char codeRepeat, unsigned char messageRepeat ) {
+DoorBellTransmitter::DoorBellTransmitter( unsigned char txPin, unsigned long code, unsigned int period, unsigned char codeRepeat, unsigned char messageRepeat ) {
   _txPin          = txPin;
-  _charCode       = charCode;
-  _shortPulse     = period/4;
+  _code           = code;
+  _shortPulse     = period*1/4;
   _longPulse      = period*3/4;
+  _syncPulse      = period*4 - period*1/8;
   _codeRepeat     = codeRepeat;
   _messageRepeat  = messageRepeat;
 }
@@ -24,15 +25,15 @@ void DoorBellTransmitter::ring(){
   for( byte i = _messageRepeat; i > 0; i--) {
   
     // Send sync at beginning of message
-    sendSync();
+    sendFirstSync();
   
     // send codeRep codes
     for ( byte j = _codeRepeat; j > 0; j--) {      
       sendSingleCode();      
     }
-    
+    digitalWrite(_txPin, LOW);
     // short delay before sending next message
-    delay( _messageDelay );  
+    delay( 5 );  
   }
 }
 
@@ -43,11 +44,8 @@ void DoorBellTransmitter::printConfig(){
     Serial.println(F(""));
     Serial.print(F("Trasmitter TX pin: "));
     Serial.println(_txPin);
-    Serial.print(F("Character code: "));
-    for ( byte i=0 ; i < 19; i++ ) {
-      Serial.print(_charCode[i]);
-    }
-    Serial.println(F(""));
+    Serial.print(F("Code: 0"));
+    Serial.println(_code, BIN);
     Serial.print(F("Short pulse: "));
     Serial.print(_shortPulse);
     Serial.print(F(" us, Long pulse: "));
@@ -59,81 +57,62 @@ void DoorBellTransmitter::printConfig(){
     Serial.println(_messageRepeat);
     Serial.println(F(""));
   }
-
 }
 
-unsigned int DoorBellTransmitter::getShortPulse() {
-  return _shortPulse;
-}
-unsigned int DoorBellTransmitter::getLongPulse() {
-  return _longPulse;
-}
 // Private Methods /////////////////////////////////////////////////////////////
 
 void DoorBellTransmitter::sendSingleCode() {
 
-  for( byte i=0; i < 19; i++ ){
-  
-    switch( _charCode[i]) {    
-      case '0':
-        send0();        
-        break;
-      case '1':
-        send1();
-        break;
-      case 'F':
-        sendF();
-        break;
-      case 'X':
-        sendX();
-        break;
+  // divisor MSB = 1, all other 0
+  unsigned long div = 1;
+  div <<= 16;
+
+  // mask
+  _code &= 131071;
+
+  // scan bit in _code, send1() for '1' and send0() for '0'
+  while ( div > 0 ) {
+    if ( _code >= div ) {
+      send1();
+      _code -= div;
+    } else {
+      send0();
     }
+    div >>= 1;
   }
-  sendLow();
+  sendSecondSync();
 }
 
-//          __
-// 'Sync'  | |________________ short-very-long
-void DoorBellTransmitter::sendSync(){
-  digitalWrite(_txPin,HIGH);
+// Inverse pulses (makes more sense)
+
+//          __________________        
+// 'S1' |__|                  |______
+void DoorBellTransmitter::sendFirstSync() {
+  digitalWrite(_txPin, HIGH);
   delayMicroseconds(_shortPulse);
-  sendLow();
+  sendSecondSync();
 }
-//
-// 'Low'  ________________ very-long
-void DoorBellTransmitter::sendLow(){
-  digitalWrite(_txPin,LOW); 
-  delayMicroseconds(((_shortPulse + _longPulse)*4) - _shortPulse);
+//       __________________
+// 'S2' |                  |______
+void DoorBellTransmitter::sendSecondSync() {
+  digitalWrite(_txPin, LOW);
+  delayMicroseconds(_syncPulse);
+  digitalWrite(_txPin, HIGH);
+  delayMicroseconds(_longPulse);
 }
 //      __
-// '0'  | |__ short-short
+// '0'  | |______ short-long
 void DoorBellTransmitter::send0(){
-  digitalWrite(_txPin, HIGH);
-  delayMicroseconds(_shortPulse);
   digitalWrite(_txPin, LOW);
   delayMicroseconds(_shortPulse);
+  digitalWrite(_txPin, HIGH);
+  delayMicroseconds(_longPulse);
 }
 //      ______
-// '1'  |     |______ long-long
+// '1'  |     |__ long-short
 void DoorBellTransmitter::send1(){
-  digitalWrite(_txPin, HIGH);
-  delayMicroseconds(_longPulse);
   digitalWrite(_txPin, LOW);
   delayMicroseconds(_longPulse);
-}
-//      ______
-// 'X'  |     |__ long-short
-void DoorBellTransmitter::sendX(){
-  digitalWrite(_txPin, HIGH);
-  delayMicroseconds(_longPulse);
-  digitalWrite(_txPin, LOW);
-  delayMicroseconds(_shortPulse);
-}
-//      __
-// 'F'  | |______ short-long
-void DoorBellTransmitter::sendF(){
   digitalWrite(_txPin, HIGH);
   delayMicroseconds(_shortPulse);
-  digitalWrite(_txPin, LOW);
-  delayMicroseconds(_longPulse);
 }

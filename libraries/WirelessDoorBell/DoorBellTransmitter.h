@@ -11,12 +11,10 @@
 
 class DoorBellTransmitter {
   public:
-    DoorBellTransmitter(unsigned char txPin = 11,  char charCode[19] = "X10101FFF0XXXXXXXX",  unsigned int period = 1500, unsigned char codeRepeat = 6, unsigned char messageRepeat = 6 );
+    DoorBellTransmitter(unsigned char txPin = 11,  unsigned long code = 44800,  unsigned int period = 1500, unsigned char codeRepeat = 6, unsigned char messageRepeat = 6 );
     void ring();
-    // void setCharCode();
-    
-    unsigned int getShortPulse();
-    unsigned int getLongPulse();
+    // void setCharCode();    
+
     void printConfig();
     // void setShortPulse();
     // void setCodeRepeat();
@@ -24,18 +22,18 @@ class DoorBellTransmitter {
     unsigned char _txPin;
     unsigned int _shortPulse;
     unsigned int _longPulse;
+    unsigned int _syncPulse;
     unsigned char _codeRepeat;
     unsigned char _messageRepeat;
     unsigned char _messageDelay;
-    char * _charCode;
+    unsigned long _code;
 
     void sendSingleCode();
-    void sendSync();
-    void sendLow();
+    void sendFirstSync();
+    void sendSecondSync();
     void send0();
     void send1();
-    void sendX();
-    void sendF();
+
 };
 
 #endif
