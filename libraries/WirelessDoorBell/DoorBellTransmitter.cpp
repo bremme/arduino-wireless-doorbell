@@ -67,10 +67,10 @@ void DoorBellTransmitter::sendSingleCode() {
   unsigned long div = 1;
   div <<= 16;
 
-  // mask
+  // mask, only first 17 bit are important
   _code &= 131071;
 
-  // scan bit in _code, send1() for '1' and send0() for '0'
+  // scan bits in _code, send1() for '1' and send0() for '0'
   while ( div > 0 ) {
     if ( _code >= div ) {
       send1();
