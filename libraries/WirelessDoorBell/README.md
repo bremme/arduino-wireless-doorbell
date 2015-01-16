@@ -12,7 +12,7 @@ I only tested this library with a single wireless doorbell, so it could well be
 possible that another doorbell uses another code.
 
 This is how the signal looks like:
- __                              ______    ______        __    ______        __
+\__                             \______    ______        __    ______        __
 |  |____________________________|      |__|      |______|  |__|      |______|  |
 
    ______        __        __        __        __    ______    ______    ______
