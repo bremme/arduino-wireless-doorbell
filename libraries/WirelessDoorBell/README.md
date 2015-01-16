@@ -1,4 +1,3 @@
-/* 
 # General introduction
 
 This library can be used to send an received code to/from a SELECT PLUS Wireless Doorbell. In the Netherlands these where sold at the Action store (jan 2015). Perhaps they are also sold at other stores using a different brand name. 
@@ -12,7 +11,8 @@ I only tested this library with a single wireless doorbell, so it could well be
 possible that another doorbell uses another code.
 
 This is how the signal looks like:
-\__                             \______    ______        __    ______        __
+```
+ __                              ______    ______        __    ______        __
 |  |____________________________|      |__|      |______|  |__|      |______|  |
 
    ______        __        __        __        __    ______    ______    ______
@@ -20,8 +20,9 @@ __|      |______|  |______|  |______|  |______|  |__|      |__|      |__|      |
 
    ______    ______    ______    ______    ______
 __|      |__|      |__|      |__|      |__|      |
-
+```
 One way to look at the above signal is to use 4 different bits and a sync signal:
+```
  __
 |  |____________________________  : SYNC
  ______
@@ -32,10 +33,11 @@ One way to look at the above signal is to use 4 different bits and a sync signal
 |  |__            : SHORT - SHORT = '0'
  __
 |  |______        : SHORT - LONG  = 'F'
-
+```
 Using the above scheme, the code my wireless doorbell transmitter is sending is: X10101FFF0XXXXXXXX
 
 But it makes more sense to inverse the received signal, since then we have only 2 bits:
+```
     ____________________________        __        ______    __        ______
  __|                            |______|  |______|      |__|  |______|      |__
  __        ______    ______    ______    ______    __        __        __        
@@ -49,7 +51,7 @@ __|                            |______  : SYNC
 |  |______                              : SHORT - LONG  = '0'
  ______
 |      |__                              : LONG  - SHORT = '1'
-
+```
 Using the above improved sheme, the code my wireless doorbell transmitter is sending is: 0 1010 1111 0000 0000
 
 Since the whole code is based on edge detection we actualy don't have to inverse the signal anyway.
