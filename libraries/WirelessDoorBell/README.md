@@ -8,7 +8,7 @@ The transmitter uses simple OOK/ASK modulation sheme. As far as I understand thi
 
 # Signal
 I only tested this library with a single wireless doorbell, so it could well be
-possible that another doorbell uses another code.
+possible that other doorbells uses other codes.
 
 This is how the signal looks like:
 ```
@@ -36,7 +36,7 @@ One way to look at the above signal is to use 4 different bits and a sync signal
 ```
 Using the above scheme, the code my wireless doorbell transmitter is sending is: X10101FFF0XXXXXXXX
 
-But it makes more sense to inverse the received signal, since then we have only 2 bits:
+But it makes more sense to inverse the received signal, since then we only need 2 bits:
 ```
     ____________________________        __        ______    __        ______
  __|                            |______|  |______|      |__|  |______|      |__
@@ -52,7 +52,7 @@ __|                            |______  : SYNC
  ______
 |      |__                              : LONG  - SHORT = '1'
 ```
-Using the above improved sheme, the code my wireless doorbell transmitter is sending is: 0 1010 1111 0000 0000
+Using the above improved scheme, the code my wireless doorbell transmitter is sending is: 0 1010 1111 0000 0000 (decimal: 44800)
 
 Since the whole code is based on edge detection we actualy don't have to inverse the signal anyway.
 
@@ -64,3 +64,59 @@ period:    ~1500 us
 sync low:  ~5800 us ( 4 * period - 1/8 * period )
 
 # Using the library
+
+To use the library, you have to download the files and add them to your arduino libraries folder.
+
+The library consist of two classes, a receiver (DoorBellReceiver) and a transmitter class (DoorBellTransmitter). You can use either one or both in a sketch. The default pins are:
+
+Receiver RX:    PIN 2 (arduino interrupt 0)
+Transmitter TX: PIN 11
+
+You could change the pins, by calling the constructors with different arguments.
+
+## Using the receiver
+
+A simple example could look like this:
+```
+#include <DoorBellReceiver.h>
+
+void setup() {
+    Serial.begin(9600);
+    DoorBellReceiver doorbellReceiver(0, 1, myCallBack);    
+}
+
+void loop(){}
+
+void myCallBack(unsigned int code) {
+  // Print received code
+  Serial.print(F("Received code: "));
+  Serial.println(code);
+}
+```
+## using the transmitter
+
+A simple example could look like this:
+```
+#include <DoorBellTransmitter.h> 
+
+DoorBellTransmitter bell;
+
+void setup(){
+  Serial.begin(9600);
+  bell.printConfig();
+}
+
+void loop(){
+  char buffer[7];
+
+  if (Serial.available() > 5) {   
+    Serial.readBytes(buffer,6);    
+    if ( (buffer[0] == 'r') && (buffer[1] == 'i') && (buffer[2] == 'n') && (buffer[3] == 'g') ) {
+      Serial.println("Ringing door bell");
+      bell.ring();
+    } else {
+      Serial.println("Unknown command");    
+    }
+  }  
+}
+```
