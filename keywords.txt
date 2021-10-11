@@ -1,0 +1,29 @@
+#######################################
+# Syntax Coloring Map For WirelessDoorbell
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DoorBellReceiver	KEYWORD1
+DoorBellTransmitter	KEYWORD1
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+
+enable	KEYWORD2
+disable	KEYWORD2
+printConfig	KEYWORD2
+setMargin	KEYWORD2
+setPeriod	KEYWORD2
+setMinRepeats	KEYWORD2
+interruptHandler	KEYWORD2
+ring	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
